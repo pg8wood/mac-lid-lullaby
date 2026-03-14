@@ -1,7 +1,7 @@
 # Mac Lid Lullaby
 
 <p align="center">
-  <img src="README-assets/mario.png" alt="Mario from Super Mario 64 DS" width="260" />
+  <img src="docs/mario.png" alt="Mario from Super Mario 64 DS" width="260" />
 </p>
 
 Bring back the feeling of Mario sending you off to bed on your Nintendo DS. Mac Lid Lullaby is a tiny menu bar app that plays a custom sound as you close your Mac’s lid.
