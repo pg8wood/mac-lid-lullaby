@@ -1,11 +1,11 @@
 # MacBook Lid "Bye-bye" app
 
-Tiny menu-bar macOS proof of concept that watches hidden lid-state values and plays a sound when the lid gets near closed.
+Tiny menu-bar macOS proof of concept that watches the MacBook lid angle and plays a sound just before the lid closes.
 
 ## What this uses
 
-- A polling loop that reads `LidAngle` from `ioreg` when available.
-- A fallback to `AppleClamshellState` when angle data is unavailable.
+- A polling loop that reads the lid angle from the same private HID sensor MacMonium uses.
+- A private `IOPMrootDomain` clamshell-sleep override so the clip can finish playing while the lid closes.
 - A bundled `mario-64-bye-bye.mp3` clip as the default sound.
 - A menu-bar UI for choosing a different local audio file.
 
@@ -26,5 +26,5 @@ You should see a menu-bar item with a waving hand icon.
 
 ## Notes
 
-- This intentionally uses undocumented lid-state values and is not meant for App Store distribution.
-- Hidden properties like `LidAngle` can vary by Mac model, chip, and macOS version.
+- This intentionally uses private APIs and is not meant for App Store distribution.
+- The lid sensor and clamshell override behavior can vary by Mac model, chip, and macOS version.
