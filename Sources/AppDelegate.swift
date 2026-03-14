@@ -12,6 +12,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     )
 
     private var statusItem: NSStatusItem?
+    private let descriptionItem = NSMenuItem(
+        title: "Plays a sound right before your MacBook lid closes.",
+        action: nil,
+        keyEquivalent: ""
+    )
     private let soundItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -94,14 +99,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func setupMenu() {
+        descriptionItem.isEnabled = false
         soundItem.isEnabled = false
 
         let menu = NSMenu()
+        menu.addItem(descriptionItem)
         menu.addItem(soundItem)
         menu.addItem(.separator())
         menu.addItem(makeMenuItem(title: "Choose Audio…", action: #selector(chooseAudio)))
         menu.addItem(makeMenuItem(title: "Play Preview", action: #selector(playPreview)))
-        menu.addItem(makeMenuItem(title: "Use Bundled Mario", action: #selector(useBundledMario)))
+        menu.addItem(makeMenuItem(title: "Use Default Sound", action: #selector(useBundledMario)))
         menu.addItem(.separator())
         menu.addItem(makeMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         statusItem?.menu = menu

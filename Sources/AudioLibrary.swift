@@ -25,8 +25,8 @@ final class AudioLibrary {
             return .custom(url)
         }
 
-        guard let bundledURL = Bundle.module.url(forResource: "mario-64-bye-bye", withExtension: "mp3") else {
-            preconditionFailure("Missing bundled audio resource mario-64-bye-bye.mp3")
+        guard let bundledURL = Bundle.module.url(forResource: "sm64ds-bye", withExtension: "wav") else {
+            preconditionFailure("Missing bundled audio resource sm64ds-bye.wav")
         }
 
         return .bundled(bundledURL)
