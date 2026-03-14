@@ -16,16 +16,7 @@ https://github.com/user-attachments/assets/7630a1f2-2d79-4eef-88dd-472709bad3fa
 - Choose your own audio file
 
 ## Download
-See the releases page.
-
-## Build Yourself
-Open [`Mac Lid Lullaby.xcodeproj`](/Users/patrickgatewood/Developer/macbook-lid/Mac%20Lid%20Lullaby.xcodeproj) in Xcode and build, or use:
-
-```zsh
-./scripts/build-app.sh
-```
-
-That creates `dist/Mac Lid Lullaby.app`, which runs in the menu bar with a waving hand icon.
+See the releases page
 
 ## How It Works
 
