@@ -16,6 +16,7 @@
 		A1B2C3D4E5F6000000000027 /* SleepSoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F600000000000F /* SleepSoundPlayer.swift */; };
 		A1B2C3D4E5F6000000000028 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000010 /* main.swift */; };
 		A1B2C3D4E5F6000000000029 /* sm64ds-bye.wav in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000011 /* sm64ds-bye.wav */; };
+		B87639ED2F6515F700F4F2B0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B87639EC2F6515F700F4F2B0 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		A1B2C3D4E5F600000000000F /* SleepSoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepSoundPlayer.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6000000000010 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6000000000011 /* sm64ds-bye.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "sm64ds-bye.wav"; sourceTree = "<group>"; };
+		B87639EC2F6515F700F4F2B0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 		A1B2C3D4E5F6000000000005 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				B87639EC2F6515F700F4F2B0 /* Assets.xcassets */,
 				A1B2C3D4E5F6000000000009 /* AppDelegate.swift */,
 				A1B2C3D4E5F600000000000A /* AudioLibrary.swift */,
 				A1B2C3D4E5F600000000000B /* LaunchAtLoginController.swift */,
@@ -150,6 +153,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B87639ED2F6515F700F4F2B0 /* Assets.xcassets in Resources */,
 				A1B2C3D4E5F6000000000029 /* sm64ds-bye.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -217,11 +221,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
-				EXECUTABLE_NAME = mac-lid-lullaby;
+				EXECUTABLE_NAME = "mac-lid-lullaby";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -230,7 +236,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.patrickgatewood.mac-lid-lullaby;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.patrickgatewood.mac-lid-lullaby";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -242,11 +248,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
-				EXECUTABLE_NAME = mac-lid-lullaby;
+				EXECUTABLE_NAME = "mac-lid-lullaby";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -255,7 +263,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.patrickgatewood.mac-lid-lullaby;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.patrickgatewood.mac-lid-lullaby";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;

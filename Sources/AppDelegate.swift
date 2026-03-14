@@ -100,9 +100,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         guard let button = statusItem?.button else { return }
 
-        let image = NSImage(systemSymbolName: "hand.wave.fill", accessibilityDescription: "Mac Lid Lullaby")
-        image?.isTemplate = true
+        let image = NSImage(named: "status-bar-icon")!
+        image.size = NSSize(width: 22, height: 15)
         button.image = image
+        button.imageScaling = .scaleProportionallyDown
         button.toolTip = "Mac Lid Lullaby"
     }
 
