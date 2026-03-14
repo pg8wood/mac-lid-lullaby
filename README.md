@@ -27,5 +27,11 @@ swift run
 
 The app runs in the menu bar with a waving hand icon.
 
+## How It Works
+
+At a high level, the app polls the MacBook lid angle sensor, watches for the lid moving downward, and starts the selected audio at the right moment.
+
+Because macOS normally wants to sleep as the lid closes, the app also temporarily disables clamshell sleep just long enough for the sound to finish, then restores normal behavior right after.
+
 ## Attribution
 Shoutout to the awesome [Hingemonium](https://github.com/Rocktopus101/Hingemonium) repo for introducing me to the Mac’s hinge sensor.
