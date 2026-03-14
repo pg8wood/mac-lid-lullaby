@@ -15,10 +15,8 @@ final class LidMonitor {
 
     private var timer: Timer?
     private var armed = true
-    private var lastReadingDescription = ""
     private var lastAngle: Double?
     private var lastAngleTimestamp: Date?
-    private var capabilityLogged = false
     private var lastDelta: Double?
     private var awaitingWakeReset = false
 
@@ -50,18 +48,6 @@ final class LidMonitor {
         guard timer == nil else { return }
 
         sensor.start()
-        logMessage(
-            String(
-                format: "Starting lid monitor (poll every %.2fs, protect below %.1f degrees at %.1f deg/s, trigger at %.1f degrees, re-arm at %.1f degrees, fast-close at %.1f deg/s below %.1f degrees)",
-                pollInterval,
-                preTriggerProtectionAngleThreshold,
-                preTriggerProtectionVelocityThreshold,
-                triggerThreshold,
-                resetThreshold,
-                fastCloseVelocityThreshold,
-                fastCloseAngleThreshold
-            )
-        )
         timer = Timer.scheduledTimer(withTimeInterval: pollInterval, repeats: true) { [weak self] _ in
             self?.poll()
         }
@@ -78,18 +64,10 @@ final class LidMonitor {
     func handleWake() {
         awaitingWakeReset = true
         armed = false
-        logMessage(String(format: "Observed wake; waiting to reopen past %.1f degrees before re-arming", wakeResetThreshold))
     }
 
     private func poll() {
-        guard let angle = sensor.lidAngle() else {
-            logObservedState("unknown")
-            logCapabilityIfNeeded("No HID lid telemetry found")
-            return
-        }
-
-        logObservedState(String(format: "angle %.1f", angle))
-        logCapabilityIfNeeded("Using HID lid angle telemetry")
+        guard let angle = sensor.lidAngle() else { return }
 
         if awaitingWakeReset, angle >= wakeResetThreshold, (lastDelta ?? 0) >= 0 {
             awaitingWakeReset = false
@@ -97,49 +75,36 @@ final class LidMonitor {
             lastAngle = angle
             lastAngleTimestamp = Date()
             lastDelta = nil
-            logMessage(String(format: "Wake reset cleared at lid angle %.1f", angle))
         }
 
         let evaluation = evaluateTrigger(for: angle)
-        if let protectionReason = evaluation.protectionReason {
-            player.beginCloseProtection(for: selectionProvider(), triggerReason: protectionReason)
+        if evaluation.shouldStartProtection {
+            player.beginCloseProtection(for: selectionProvider())
         } else if !player.isPlaying,
                   player.hasCloseProtection,
                   angle >= resetThreshold,
                   (lastDelta ?? 0) > 0 {
-            player.endCloseProtection(reason: String(format: "lid reopened to %.1f degrees", angle))
+            player.endCloseProtection()
         }
 
-        if armed, let triggerReason = evaluation.triggerReason {
+        if armed, evaluation.shouldTrigger {
             armed = false
-            triggerPlayback(reason: triggerReason)
-        } else if !armed, angle >= resetThreshold, (lastDelta ?? 0) > 0 {
+            triggerPlayback()
+        } else if !awaitingWakeReset, !armed, angle >= resetThreshold, (lastDelta ?? 0) > 0 {
             armed = true
-            logMessage(String(format: "Re-armed at lid angle %.1f", angle))
         }
     }
 
-    private func logObservedState(_ description: String) {
-        guard description != lastReadingDescription else { return }
-        logMessage("Observed lid state: \(description)")
-        lastReadingDescription = description
-    }
-
-    private func triggerPlayback(reason: String) {
+    private func triggerPlayback() {
         let selection = selectionProvider()
-        guard !player.isPlaying else {
-            logMessage("Skipping trigger for \(selection.displayName) because playback is already active")
-            return
-        }
-
-        logMessage("Triggering \(selection.displayName) because \(reason)")
+        guard !player.isPlaying else { return }
         player.play(selection: selection, origin: .lidTrigger)
     }
 
     private func evaluateTrigger(for angle: Double) -> TriggerEvaluation {
         let now = Date()
-        var triggerReason: String?
-        var protectionReason: String?
+        var shouldTrigger = false
+        var shouldStartProtection = false
 
         if let previousAngle = lastAngle, let previousTimestamp = lastAngleTimestamp {
             let delta = angle - previousAngle
@@ -148,15 +113,6 @@ final class LidMonitor {
 
             if elapsed > 0, abs(delta) >= 1.0 {
                 let velocity = delta / elapsed
-                logMessage(
-                    String(
-                        format: "Angle %.1f degrees (delta %.1f over %.3fs, %.1f deg/s)",
-                        angle,
-                        delta,
-                        elapsed,
-                        velocity
-                    )
-                )
 
                 if delta < 0,
                    angle <= preTriggerProtectionAngleThreshold,
@@ -165,47 +121,35 @@ final class LidMonitor {
                    !awaitingWakeReset,
                    !player.hasCloseProtection,
                    !player.isPlaying {
-                    protectionReason = String(
-                        format: "downward close at %.1f degrees (%.1f deg/s)",
-                        angle,
-                        abs(velocity)
-                    )
+                    shouldStartProtection = true
                 }
 
                 if !awaitingWakeReset,
                    previousAngle > triggerThreshold,
                    angle <= triggerThreshold,
                    delta < 0 {
-                    triggerReason = String(format: "lid angle %.1f", angle)
+                    shouldTrigger = true
                 } else if !awaitingWakeReset,
                           delta < 0,
                           angle <= fastCloseAngleThreshold,
                           abs(velocity) >= fastCloseVelocityThreshold {
-                    triggerReason = String(
-                        format: "fast close at %.1f degrees (%.1f deg/s)",
-                        angle,
-                        abs(velocity)
-                    )
+                    shouldTrigger = true
                 }
             }
         } else {
-            logMessage(String(format: "Angle %.1f degrees", angle))
             lastDelta = nil
         }
 
         lastAngle = angle
         lastAngleTimestamp = now
-        return TriggerEvaluation(triggerReason: triggerReason, protectionReason: protectionReason)
-    }
-
-    private func logCapabilityIfNeeded(_ message: String) {
-        guard !capabilityLogged else { return }
-        capabilityLogged = true
-        logMessage(message)
+        return TriggerEvaluation(
+            shouldTrigger: shouldTrigger,
+            shouldStartProtection: shouldStartProtection
+        )
     }
 }
 
 private struct TriggerEvaluation {
-    let triggerReason: String?
-    let protectionReason: String?
+    let shouldTrigger: Bool
+    let shouldStartProtection: Bool
 }

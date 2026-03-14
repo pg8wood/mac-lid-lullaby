@@ -25,26 +25,15 @@ final class SleepSoundPlayer: NSObject, AVAudioPlayerDelegate {
     }
 
     func shutdown() {
-        finishPlayback(reason: "application shutdown", shouldLog: false)
-        clamshellSleepController.endOverride(reason: "application shutdown")
+        finishPlayback()
     }
 
     func resetAfterWake() {
-        watchdogWorkItem?.cancel()
-        watchdogWorkItem = nil
-        closeProtectionWorkItem?.cancel()
-        closeProtectionWorkItem = nil
-
-        isPlaying = false
-        closeProtectionActive = false
-        preparedAudioPlayer?.stop()
-        assertionController.endHold()
-        clamshellSleepController.endOverride(reason: "wake reset")
-        logMessage("Reset playback and sleep override state after wake")
+        resetRuntimeState()
     }
 
     func prepare(selection: AudioSelection) {
-        finishPlayback(reason: "preparing audio", shouldLog: false)
+        finishPlayback()
         preparedSelectionDescription = selection.displayName
         preparedAudioPlayer?.stop()
         preparedAudioPlayer = nil
@@ -54,13 +43,10 @@ final class SleepSoundPlayer: NSObject, AVAudioPlayerDelegate {
             player.delegate = self
             player.prepareToPlay()
             preparedAudioPlayer = player
-            logMessage("Prepared audio for \(selection.displayName)")
-        } catch {
-            logMessage("Failed to prepare \(selection.displayName): \(error.localizedDescription)")
-        }
+        } catch {}
     }
 
-    func beginCloseProtection(for selection: AudioSelection, triggerReason: String) {
+    func beginCloseProtection(for selection: AudioSelection) {
         guard !isPlaying else { return }
 
         if preparedSelectionDescription != selection.displayName {
@@ -70,109 +56,100 @@ final class SleepSoundPlayer: NSObject, AVAudioPlayerDelegate {
         closeProtectionWorkItem?.cancel()
 
         if !closeProtectionActive {
-            logMessage("Starting early close protection for \(selection.displayName) because \(triggerReason)")
             assertionController.beginForCloseGesture(reason: selection.displayName)
-            clamshellSleepController.beginOverride(reason: selection.displayName)
+            clamshellSleepController.beginOverride()
             closeProtectionActive = true
-        } else {
-            logMessage("Refreshing early close protection for \(selection.displayName)")
         }
 
-        let timeout = 2.0
         let workItem = DispatchWorkItem { [weak self] in
-            self?.endCloseProtection(reason: "close protection timed out")
+            self?.endCloseProtection()
         }
         closeProtectionWorkItem = workItem
-        logMessage("Scheduled close protection timeout for \(selection.displayName) at \(String(format: "%.2f", timeout))s")
-        DispatchQueue.main.asyncAfter(deadline: .now() + timeout, execute: workItem)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: workItem)
     }
 
-    func endCloseProtection(reason: String) {
-        closeProtectionWorkItem?.cancel()
-        closeProtectionWorkItem = nil
+    func endCloseProtection() {
+        cancelCloseProtection()
 
         guard closeProtectionActive, !isPlaying else { return }
 
         closeProtectionActive = false
         assertionController.endHold()
-        clamshellSleepController.endOverride(reason: reason)
-        logMessage("Ended early close protection: \(reason)")
+        clamshellSleepController.endOverride()
     }
 
     func play(selection: AudioSelection, origin: PlaybackOrigin) {
-        guard !isPlaying else {
-            logMessage("Ignoring playback request for \(selection.displayName) because audio is already playing")
-            return
-        }
+        guard !isPlaying else { return }
 
-        finishPlayback(reason: "starting new playback", shouldLog: false)
+        finishPlayback()
 
         if preparedSelectionDescription != selection.displayName {
             prepare(selection: selection)
         }
 
-        guard let player = preparedAudioPlayer else {
-            logMessage("No prepared audio player for \(selection.displayName)")
-            return
-        }
+        guard let player = preparedAudioPlayer else { return }
 
         if origin == .lidTrigger {
             closeProtectionWorkItem?.cancel()
             closeProtectionWorkItem = nil
             closeProtectionActive = false
-            clamshellSleepController.beginOverride(reason: selection.displayName)
+            clamshellSleepController.beginOverride()
         }
 
         assertionController.beginForPlayback(reason: selection.displayName)
-        scheduleWatchdog(for: player.duration, selection: selection)
+        scheduleWatchdog(for: player.duration)
         player.currentTime = 0
         isPlaying = true
-        logMessage("Starting playback for \(selection.displayName)")
 
         if !player.play() {
-            logMessage("Playback failed to start for \(selection.displayName)")
-            finishPlayback(reason: "playback failed to start")
+            finishPlayback()
         }
     }
 
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        logMessage("Playback finished with success=\(flag)")
-        finishPlayback(reason: "playback finished")
+        _ = flag
+        finishPlayback()
     }
 
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        logMessage("Decode error: \(error?.localizedDescription ?? "unknown")")
-        finishPlayback(reason: "decode error")
+        _ = error
+        finishPlayback()
     }
 
-    private func scheduleWatchdog(for duration: TimeInterval, selection: AudioSelection) {
-        watchdogWorkItem?.cancel()
+    private func scheduleWatchdog(for duration: TimeInterval) {
+        cancelWatchdog()
 
         let timeout = max(duration, 0.25) + 0.35
         let workItem = DispatchWorkItem { [weak self] in
-            logMessage("Playback watchdog timed out for \(selection.displayName) after \(String(format: "%.2f", timeout))s")
-            self?.finishPlayback(reason: "watchdog timeout")
+            self?.finishPlayback()
         }
 
         watchdogWorkItem = workItem
-        logMessage("Scheduled playback watchdog for \(selection.displayName) at \(String(format: "%.2f", timeout))s")
         DispatchQueue.main.asyncAfter(deadline: .now() + timeout, execute: workItem)
     }
 
-    private func finishPlayback(reason: String, shouldLog: Bool = true) {
-        watchdogWorkItem?.cancel()
-        watchdogWorkItem = nil
-        closeProtectionWorkItem?.cancel()
-        closeProtectionWorkItem = nil
+    private func finishPlayback() {
+        resetRuntimeState()
+    }
+
+    private func resetRuntimeState() {
+        cancelWatchdog()
+        cancelCloseProtection()
 
         isPlaying = false
         closeProtectionActive = false
         preparedAudioPlayer?.stop()
         assertionController.endHold()
-        clamshellSleepController.endOverride(reason: reason)
+        clamshellSleepController.endOverride()
+    }
 
-        if shouldLog {
-            logMessage("Playback cleanup completed: \(reason)")
-        }
+    private func cancelWatchdog() {
+        watchdogWorkItem?.cancel()
+        watchdogWorkItem = nil
+    }
+
+    private func cancelCloseProtection() {
+        closeProtectionWorkItem?.cancel()
+        closeProtectionWorkItem = nil
     }
 }

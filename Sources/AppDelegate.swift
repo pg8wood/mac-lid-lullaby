@@ -15,8 +15,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let soundItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        logMessage("Application did finish launching")
-
         NSWorkspace.shared.notificationCenter.addObserver(
             self,
             selector: #selector(handleWakeNotification),
@@ -60,7 +58,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         refreshSoundItem()
         player.repairStateOnLaunch()
-        player.prepare(selection: audioLibrary.currentSelection())
+        player.prepare(selection: currentSelection())
         lidMonitor.start()
     }
 
@@ -71,7 +69,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func handleWakeNotification() {
-        logMessage("Observed NSWorkspace.didWake")
         player.resetAfterWake()
         lidMonitor.handleWake()
     }
@@ -85,37 +82,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.allowsMultipleSelection = false
         panel.allowedContentTypes = [.audio]
 
-        guard panel.runModal() == .OK, let sourceURL = panel.url else {
-            logMessage("Choose audio canceled")
-            return
-        }
+        guard panel.runModal() == .OK, let sourceURL = panel.url else { return }
 
         do {
             let selection = try audioLibrary.importAudioFile(from: sourceURL)
-            logMessage("Imported custom audio \(selection.displayName)")
             player.prepare(selection: selection)
             refreshSoundItem()
-        } catch {
-            logMessage("Failed to import custom audio: \(error.localizedDescription)")
-        }
+        } catch {}
     }
 
     @objc private func playPreview() {
-        let selection = audioLibrary.currentSelection()
-        logMessage("Preview requested for \(selection.displayName)")
-        player.play(selection: selection, origin: .preview)
+        player.play(selection: currentSelection(), origin: .preview)
     }
 
     @objc private func useBundledMario() {
         do {
             try audioLibrary.resetToBundledDefault()
-            let selection = audioLibrary.currentSelection()
-            logMessage("Reverted to bundled audio \(selection.displayName)")
+            let selection = currentSelection()
             player.prepare(selection: selection)
             refreshSoundItem()
-        } catch {
-            logMessage("Failed to reset audio: \(error.localizedDescription)")
-        }
+        } catch {}
     }
 
     @objc private func quit() {
@@ -123,6 +109,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func refreshSoundItem() {
-        soundItem.title = "Sound: \(audioLibrary.currentSelection().displayName)"
+        soundItem.title = "Sound: \(currentSelection().displayName)"
+    }
+
+    private func currentSelection() -> AudioSelection {
+        audioLibrary.currentSelection()
     }
 }
