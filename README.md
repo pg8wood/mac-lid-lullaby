@@ -7,6 +7,7 @@
 Bring back the feeling of Mario sending you off to bed on your Nintendo DS. Mac Lid Lullaby is a tiny menu bar app that plays a custom sound as you close your Mac’s lid.
 
 ## Demo
+🔊 Make sure your sound is on!
 
 https://github.com/user-attachments/assets/7630a1f2-2d79-4eef-88dd-472709bad3fa
 
@@ -16,7 +17,7 @@ https://github.com/user-attachments/assets/7630a1f2-2d79-4eef-88dd-472709bad3fa
 - Choose your own audio file
 
 ## Download
-See the releases page
+Download the [latest release](https://github.com/pg8wood/mac-lid-lullaby/releases)
 
 ## How It Works
 
