@@ -12,11 +12,6 @@ final class LidAngleSensor {
 
     init() {
         hidDevice = findDevice()
-        if hidDevice != nil {
-            logMessage("Initialized HID lid angle sensor")
-        } else {
-            logMessage("Failed to find HID lid angle sensor")
-        }
     }
 
     deinit {
@@ -29,8 +24,7 @@ final class LidAngleSensor {
         }
 
         guard let hidDevice else { return }
-        let result = IOHIDDeviceOpen(hidDevice, IOOptionBits(kIOHIDOptionsTypeNone))
-        logMessage("IOHIDDeviceOpen returned 0x\(String(result, radix: 16))")
+        _ = IOHIDDeviceOpen(hidDevice, IOOptionBits(kIOHIDOptionsTypeNone))
     }
 
     func stop() {
@@ -82,14 +76,9 @@ final class LidAngleSensor {
             return nil
         }
 
-        logMessage("Found \(devices.count) matching HID lid sensor device(s)")
-
-        for (index, device) in devices.enumerated() {
+        for device in devices {
             let openDeviceResult = IOHIDDeviceOpen(device, IOOptionBits(kIOHIDOptionsTypeNone))
-            guard openDeviceResult == kIOReturnSuccess else {
-                logMessage("Failed to open HID device \(index)")
-                continue
-            }
+            guard openDeviceResult == kIOReturnSuccess else { continue }
 
             var report = [UInt8](repeating: 0, count: reportBufferSize)
             var reportLength = report.count
@@ -103,11 +92,8 @@ final class LidAngleSensor {
             IOHIDDeviceClose(device, IOOptionBits(kIOHIDOptionsTypeNone))
 
             if result == kIOReturnSuccess, reportLength >= 3 {
-                logMessage("Using HID lid sensor device \(index)")
                 return device
             }
-
-            logMessage("HID device \(index) probe failed with 0x\(String(result, radix: 16)) and length \(reportLength)")
         }
 
         return nil
