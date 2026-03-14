@@ -1,37 +1,30 @@
 # MacBook Lid "Bye-bye" app
 
-Tiny menu-bar macOS app that monitors lid state and plays a short "Bye-bye" cue when the lid gets near closed.
+Tiny menu-bar macOS proof of concept that watches hidden lid-state values and plays a sound when the lid gets near closed.
 
 ## What this uses
 
-- Tries to read a `LidAngle` value from `ioreg` (if your Mac exposes it).
-- Falls back to `AppleClamshellState` (closed/open) if angle is unavailable.
-- Triggers once when angle drops below 4° (default), then re-arms when opened above 12°.
+- A polling loop that reads `LidAngle` from `ioreg` when available.
+- A fallback to `AppleClamshellState` when angle data is unavailable.
+- A bundled `mario-64-bye-bye.mp3` clip as the default sound.
+- A menu-bar UI for choosing a different local audio file.
 
 ## Build & run
 
 ```bash
-swift build
-swift run
+swift build --disable-sandbox
+swift run --disable-sandbox
 ```
 
-You should see a menu-bar item named `👋 Lid`.
+You should see a menu-bar item with a waving hand icon.
 
 ## Audio behavior
 
-- If `mario-bye-bye.wav` exists next to the executable (or in `Resources/` in development), it will play that.
-- Otherwise, it uses macOS speech synthesis and says: "Bye-bye!"
-
-## Adding the Mario sound clip yourself
-
-I did **not** bundle a Nintendo-owned clip in this repository.
-
-To add one locally:
-
-1. Acquire your own short `.wav` file named `mario-bye-bye.wav`.
-2. Put it next to the built executable, or in `Resources/mario-bye-bye.wav` during development.
+- If you choose a custom file from the menu, the app copies it into Application Support using the original filename and reuses it on future launches.
+- If you have not chosen a custom file, the app uses the bundled `mario-64-bye-bye.mp3`.
+- `Play Preview` lets you verify the current clip on demand.
 
 ## Notes
 
-- Lid-angle access appears to rely on undocumented/private hardware properties and can vary by Mac model/chip/OS version.
-- If your machine does not expose `LidAngle`, behavior falls back to simple closed/open detection.
+- This intentionally uses undocumented lid-state values and is not meant for App Store distribution.
+- Hidden properties like `LidAngle` can vary by Mac model, chip, and macOS version.
