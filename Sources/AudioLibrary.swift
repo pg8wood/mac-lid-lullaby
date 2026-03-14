@@ -77,9 +77,11 @@ final class AudioLibrary {
             return mainBundleURL
         }
 
+        #if SWIFT_PACKAGE
         if let moduleBundleURL = Bundle.module.url(forResource: "sm64ds-bye", withExtension: "wav") {
             return moduleBundleURL
         }
+        #endif
 
         preconditionFailure("Missing bundled audio resource sm64ds-bye.wav")
     }

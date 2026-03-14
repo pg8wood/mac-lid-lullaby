@@ -19,7 +19,7 @@ https://github.com/user-attachments/assets/7630a1f2-2d79-4eef-88dd-472709bad3fa
 See the releases page.
 
 ## Build Yourself
-Clone the repo and build the app bundle:
+Open [`Mac Lid Lullaby.xcodeproj`](/Users/patrickgatewood/Developer/macbook-lid/Mac%20Lid%20Lullaby.xcodeproj) in Xcode and build, or use:
 
 ```zsh
 ./scripts/build-app.sh
