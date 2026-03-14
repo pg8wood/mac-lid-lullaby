@@ -15,47 +15,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let soundItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSWorkspace.shared.notificationCenter.addObserver(
-            self,
-            selector: #selector(handleWakeNotification),
-            name: NSWorkspace.didWakeNotification,
-            object: nil
-        )
-
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        if let button = statusItem?.button {
-            let image = NSImage(systemSymbolName: "hand.wave.fill", accessibilityDescription: "Bye-bye")
-            image?.isTemplate = true
-            button.image = image
-            button.toolTip = "Bye-bye"
-        }
-
-        soundItem.isEnabled = false
-
-        let menu = NSMenu()
-        menu.addItem(soundItem)
-        menu.addItem(NSMenuItem.separator())
-
-        let chooseAudioItem = NSMenuItem(title: "Choose Audio…", action: #selector(chooseAudio), keyEquivalent: "")
-        chooseAudioItem.target = self
-        menu.addItem(chooseAudioItem)
-
-        let previewItem = NSMenuItem(title: "Play Preview", action: #selector(playPreview), keyEquivalent: "")
-        previewItem.target = self
-        menu.addItem(previewItem)
-
-        let defaultItem = NSMenuItem(title: "Use Bundled Mario", action: #selector(useBundledMario), keyEquivalent: "")
-        defaultItem.target = self
-        menu.addItem(defaultItem)
-
-        menu.addItem(NSMenuItem.separator())
-
-        let quitItem = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
-        quitItem.target = self
-        menu.addItem(quitItem)
-
-        statusItem?.menu = menu
-
+        registerObservers()
+        setupStatusItem()
+        setupMenu()
         refreshSoundItem()
         player.repairStateOnLaunch()
         player.prepare(selection: currentSelection())
@@ -63,7 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        NSWorkspace.shared.notificationCenter.removeObserver(self)
+        unregisterObservers()
         lidMonitor.stop()
         player.shutdown()
     }
@@ -106,6 +68,53 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func quit() {
         NSApplication.shared.terminate(nil)
+    }
+
+    private func registerObservers() {
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(handleWakeNotification),
+            name: NSWorkspace.didWakeNotification,
+            object: nil
+        )
+    }
+
+    private func unregisterObservers() {
+        NSWorkspace.shared.notificationCenter.removeObserver(self)
+    }
+
+    private func setupStatusItem() {
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        guard let button = statusItem?.button else { return }
+
+        let image = NSImage(systemSymbolName: "hand.wave.fill", accessibilityDescription: "Bye-bye")
+        image?.isTemplate = true
+        button.image = image
+        button.toolTip = "Bye-bye"
+    }
+
+    private func setupMenu() {
+        soundItem.isEnabled = false
+
+        let menu = NSMenu()
+        menu.addItem(soundItem)
+        menu.addItem(.separator())
+        menu.addItem(makeMenuItem(title: "Choose Audio…", action: #selector(chooseAudio)))
+        menu.addItem(makeMenuItem(title: "Play Preview", action: #selector(playPreview)))
+        menu.addItem(makeMenuItem(title: "Use Bundled Mario", action: #selector(useBundledMario)))
+        menu.addItem(.separator())
+        menu.addItem(makeMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
+        statusItem?.menu = menu
+    }
+
+    private func makeMenuItem(
+        title: String,
+        action: Selector,
+        keyEquivalent: String = ""
+    ) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: action, keyEquivalent: keyEquivalent)
+        item.target = self
+        return item
     }
 
     private func refreshSoundItem() {
