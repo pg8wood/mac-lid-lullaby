@@ -19,13 +19,13 @@ https://github.com/user-attachments/assets/7630a1f2-2d79-4eef-88dd-472709bad3fa
 See the releases page.
 
 ## Build Yourself
-Clone the repo and:
+Clone the repo and build the app bundle:
 
 ```zsh
-swift run
+./scripts/build-app.sh
 ```
 
-The app runs in the menu bar with a waving hand icon.
+That creates `dist/Mac Lid Lullaby.app`, which runs in the menu bar with a waving hand icon.
 
 ## How It Works
 

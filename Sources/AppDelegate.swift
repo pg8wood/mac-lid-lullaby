@@ -1,8 +1,9 @@
 import AppKit
 import UniformTypeIdentifiers
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let audioLibrary = AudioLibrary()
+    private let launchAtLoginController = LaunchAtLoginController()
     private let player = SleepSoundPlayer()
     private lazy var lidMonitor = LidMonitor(
         player: player,
@@ -18,12 +19,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         keyEquivalent: ""
     )
     private let soundItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+    private let launchAtLoginItem = NSMenuItem(title: "Launch at Login", action: nil, keyEquivalent: "")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         registerObservers()
         setupStatusItem()
         setupMenu()
-        refreshSoundItem()
+        launchAtLoginController.configureOnLaunch()
+        refreshMenuItems()
         player.repairStateOnLaunch()
         player.prepare(selection: currentSelection())
         lidMonitor.start()
@@ -71,6 +74,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         } catch {}
     }
 
+    @objc private func toggleLaunchAtLogin() {
+        launchAtLoginController.toggle()
+        refreshLaunchAtLoginItem()
+    }
+
     @objc private func quit() {
         NSApplication.shared.terminate(nil)
     }
@@ -101,14 +109,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupMenu() {
         descriptionItem.isEnabled = false
         soundItem.isEnabled = false
+        launchAtLoginItem.target = self
+        launchAtLoginItem.action = #selector(toggleLaunchAtLogin)
 
         let menu = NSMenu()
+        menu.delegate = self
         menu.addItem(descriptionItem)
         menu.addItem(soundItem)
         menu.addItem(.separator())
         menu.addItem(makeMenuItem(title: "Choose Audio…", action: #selector(chooseAudio)))
         menu.addItem(makeMenuItem(title: "Play Preview", action: #selector(playPreview)))
         menu.addItem(makeMenuItem(title: "Use Default Sound", action: #selector(useBundledMario)))
+        menu.addItem(launchAtLoginItem)
         menu.addItem(.separator())
         menu.addItem(makeMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         statusItem?.menu = menu
@@ -128,7 +140,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         soundItem.title = "Sound: \(currentSelection().displayName)"
     }
 
+    private func refreshLaunchAtLoginItem() {
+        launchAtLoginItem.state = launchAtLoginController.menuState
+        launchAtLoginItem.isEnabled = launchAtLoginController.canManage
+    }
+
+    private func refreshMenuItems() {
+        refreshSoundItem()
+        refreshLaunchAtLoginItem()
+    }
+
     private func currentSelection() -> AudioSelection {
         audioLibrary.currentSelection()
+    }
+
+    func menuWillOpen(_ menu: NSMenu) {
+        _ = menu
+        refreshMenuItems()
     }
 }

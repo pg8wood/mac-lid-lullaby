@@ -26,11 +26,7 @@ final class AudioLibrary {
             return .custom(url)
         }
 
-        guard let bundledURL = Bundle.module.url(forResource: "sm64ds-bye", withExtension: "wav") else {
-            preconditionFailure("Missing bundled audio resource sm64ds-bye.wav")
-        }
-
-        return .bundled(bundledURL)
+        return .bundled(bundledDefaultURL())
     }
 
     func importAudioFile(from sourceURL: URL) throws -> AudioSelection {
@@ -74,6 +70,18 @@ final class AudioLibrary {
         }
 
         return fileURL
+    }
+
+    private func bundledDefaultURL() -> URL {
+        if let mainBundleURL = Bundle.main.url(forResource: "sm64ds-bye", withExtension: "wav") {
+            return mainBundleURL
+        }
+
+        if let moduleBundleURL = Bundle.module.url(forResource: "sm64ds-bye", withExtension: "wav") {
+            return moduleBundleURL
+        }
+
+        preconditionFailure("Missing bundled audio resource sm64ds-bye.wav")
     }
 
     private func appSupportDirectory() throws -> URL {
