@@ -8,7 +8,7 @@ Bring back the feeling of Mario sending you off to bed on your Nintendo DS. Mac 
 
 ## Demo
 
-<video src="README-assets/demo.mov" />
+https://github.com/user-attachments/assets/7630a1f2-2d79-4eef-88dd-472709bad3fa
 
 ## Features
 
