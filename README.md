@@ -17,13 +17,26 @@ https://github.com/user-attachments/assets/7630a1f2-2d79-4eef-88dd-472709bad3fa
 - Choose your own audio file
 
 ## Download
-Download the [latest release](https://github.com/pg8wood/mac-lid-lullaby/releases)
+
+### Homebrew
+
+```zsh
+brew install --cask pg8wood/tap/mac-lid-lullaby
+```
+
+### Direct download
+
+Grab the latest app from the [GitHub releases page](https://github.com/pg8wood/macbook-lid/releases).
 
 ## How It Works
 
 At a high level, the app polls the MacBook lid angle sensor, watches for the lid moving downward, and starts the selected audio at the right moment.
 
 Because macOS normally wants to sleep as the lid closes, the app also temporarily disables clamshell sleep just long enough for the sound to finish, then restores normal behavior right after.
+
+## Build
+
+Open `Mac Lid Lullaby.xcodeproj` in Xcode and build the `Mac Lid Lullaby` scheme.
 
 ## Attribution
 Shoutout to the awesome [Hingemonium](https://github.com/Rocktopus101/Hingemonium) repo for introducing me to the Mac’s hinge sensor.
