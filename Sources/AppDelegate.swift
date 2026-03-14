@@ -92,10 +92,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         guard let button = statusItem?.button else { return }
 
-        let image = NSImage(systemSymbolName: "hand.wave.fill", accessibilityDescription: "Bye-bye")
+        let image = NSImage(systemSymbolName: "hand.wave.fill", accessibilityDescription: "Mac Lid Lullaby")
         image?.isTemplate = true
         button.image = image
-        button.toolTip = "Bye-bye"
+        button.toolTip = "Mac Lid Lullaby"
     }
 
     private func setupMenu() {

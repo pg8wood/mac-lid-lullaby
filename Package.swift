@@ -2,16 +2,16 @@
 import PackageDescription
 
 let package = Package(
-    name: "MacBookLidByeBye",
+    name: "mac-lid-lullaby",
     platforms: [
         .macOS(.v13)
     ],
     products: [
-        .executable(name: "MacBookLidByeBye", targets: ["MacBookLidByeBye"])
+        .executable(name: "mac-lid-lullaby", targets: ["MacLidLullaby"])
     ],
     targets: [
         .executableTarget(
-            name: "MacBookLidByeBye",
+            name: "MacLidLullaby",
             path: "Sources",
             resources: [
                 .process("Resources")

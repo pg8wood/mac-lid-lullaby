@@ -31,7 +31,7 @@ final class PlaybackPowerAssertionController {
         endHold()
         currentReason = reason
 
-        let assertionName = "MacBookLidByeBye: \(reason)" as CFString
+        let assertionName = "Mac Lid Lullaby: \(reason)" as CFString
         displaySleepAssertionID = acquireAssertion(
             type: kIOPMAssertPreventUserIdleDisplaySleep as CFString,
             name: assertionName

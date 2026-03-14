@@ -1,4 +1,4 @@
-# MacBook Lid "Bye-bye" app
+# Mac Lid Lullaby
 
 Tiny menu-bar macOS proof of concept that watches the MacBook lid angle and plays a sound just before the lid closes.
 

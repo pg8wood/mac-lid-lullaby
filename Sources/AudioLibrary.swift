@@ -19,6 +19,7 @@ enum AudioSelection {
 final class AudioLibrary {
     private let defaults = UserDefaults.standard
     private let customAudioFilenameKey = "customAudioFilename"
+    private let appSupportDirectoryName = "Mac Lid Lullaby"
 
     func currentSelection() -> AudioSelection {
         if let url = customAudioURL() {
@@ -82,7 +83,7 @@ final class AudioLibrary {
             appropriateFor: nil,
             create: true
         )
-        let directory = baseDirectory.appendingPathComponent("MacBookLidByeBye", isDirectory: true)
+        let directory = baseDirectory.appendingPathComponent(appSupportDirectoryName, isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
     }
