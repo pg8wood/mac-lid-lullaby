@@ -26,3 +26,6 @@ swift run
 ```
 
 The app runs in the menu bar with a waving hand icon.
+
+## Attribution
+Shoutout to the awesome [Hingemonium](https://github.com/Rocktopus101/Hingemonium) repo for introducing me to the Mac’s hinge sensor.
